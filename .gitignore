@@ -1,0 +1,46 @@
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Raw dataset & large archives (SAFETY FIRST: NEVER COMMITTED)
+data/
+*.zip
+*.tar.gz
+*.parquet.tmp
+
+# Generated runtime and training artifacts
+artifacts/
+replay_data/
+ai/data/
+ai/output/
+models/*.pt
+models/*_weights.pt
+data_prep/output/*.parquet
+exploration/output/*.parquet
+.baseline/
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment & credentials
+.env
+infra/.env
+*.token
+
+# InfluxDB and Grafana local docker volumes
+influxdb_data/
+grafana_data/
+mosquitto_data/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

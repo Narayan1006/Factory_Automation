@@ -1,0 +1,11 @@
+metric,value
+Total Parts Analyzed,"1,183,165"
+Timeline Span (Units),1716.54
+"Timeline Span (Weeks / Years, estimated)",102.5 weeks (1.97 years)
+Estimated Mean Arrival Rate (parts/hour),68.72
+Estimated Mean Arrival Rate (parts/day),1649.3
+Estimated Mean Arrival Rate (parts/week),11545.3
+"Mean Inter-arrival Time (all parts, min)",0.8731
+"Mean Inter-Batch Gap (positive dt, min)",16.0513
+"Median Inter-Batch Gap (positive dt, min)",6.0238
+Parts Batching in Same Discrete Timestamp (%),94.56%

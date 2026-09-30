@@ -1,0 +1,30 @@
+{
+  "active_general": {
+    "defect_model": "defect_general",
+    "anomaly_model": "anomaly_general",
+    "description": "General model for production outside held-out scenarios"
+  },
+  "scenarios": {
+    "A": {
+      "defect_model": "defect_A",
+      "anomaly_model": "anomaly_A",
+      "description": "Strict hold-out variant: trained on data excluding Scenario A"
+    },
+    "B": {
+      "defect_model": "defect_B",
+      "anomaly_model": "anomaly_B",
+      "description": "Strict hold-out variant: trained on data excluding Scenario B"
+    },
+    "C": {
+      "defect_model": "defect_C",
+      "anomaly_model": "anomaly_C",
+      "description": "Strict hold-out variant: trained on data excluding Scenario C"
+    },
+    "D": {
+      "defect_model": "defect_D",
+      "anomaly_model": "anomaly_D",
+      "description": "Strict hold-out variant: trained on data excluding Scenario D"
+    }
+  },
+  "updated_at": "2026-09-30 22:04:29"
+}

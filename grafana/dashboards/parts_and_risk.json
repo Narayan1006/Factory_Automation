@@ -1,0 +1,139 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Part Cumulative Failure Risk Monitoring",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 1 },
+      "title": "Parts Flagged High Risk (> 0.70)",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "red", "mode": "fixed" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"part_risk\" and r.risk_level == \"HIGH\" and r._field == \"cumulative_risk\")\n  |> count()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 1 },
+      "title": "Medium Risk Parts (0.30 - 0.70)",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "#EAB839", "mode": "fixed" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"part_risk\" and r.risk_level == \"MEDIUM\" and r._field == \"cumulative_risk\")\n  |> count()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 1 },
+      "title": "Total Ground Truth QC Defects Flagged",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "dark-red", "mode": "fixed" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_telemetry\" and r._field == \"response\" and r._value == 1)\n  |> count()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+      "id": 101,
+      "title": "Risk Timeline & High-Risk Part Queue",
+      "type": "row"
+    },
+    {
+      "id": 4,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
+      "title": "Cumulative Part Risk Scores over Time",
+      "type": "timeseries",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "points",
+            "pointSize": 4
+          },
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "#EAB839", "value": 0.3 },
+              { "color": "red", "value": 0.7 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"part_risk\" and r._field == \"cumulative_risk\")\n  |> yield(name: \"risk\")",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "title": "High-Risk Parts Watchlist",
+      "type": "table",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"part_risk\" and r._field == \"cumulative_risk\" and r._value > 0.5)\n  |> keep(columns: [\"_time\", \"part_id\", \"current_station\", \"risk_level\", \"_value\"])\n  |> rename(columns: {_value: \"risk_score\"})\n  |> sort(columns: [\"_time\"], desc: true)\n  |> limit(n: 25)",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["bosch", "digital-twin", "quality"],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "Line 3 Digital Twin - Parts & Risk Tracking",
+  "uid": "line3-parts-risk",
+  "version": 1
+}

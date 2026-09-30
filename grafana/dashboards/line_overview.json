@@ -1,0 +1,208 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Line 3 Key Performance Indicators (Real-Time)",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "title": "Line Average Health",
+      "type": "gauge",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "#EAB839", "value": 50 },
+              { "color": "green", "value": 80 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"line_overview\" and r._field == \"line_average_health\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "title": "Throughput (Parts / Hour)",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 30 },
+              { "color": "green", "value": 50 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"line_overview\" and r._field == \"rolling_throughput_per_hr\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
+      "title": "Cumulative Defect Rate (%)",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "#EAB839", "value": 0.8 },
+              { "color": "red", "value": 1.5 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"line_overview\" and r._field == \"cumulative_defect_rate\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "title": "Total Parts Completed",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"line_overview\" and r._field == \"total_parts_completed\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+      "id": 101,
+      "title": "Station Health Trends & Pacing Status",
+      "type": "row"
+    },
+    {
+      "id": 5,
+      "gridPos": { "h": 9, "w": 16, "x": 0, "y": 7 },
+      "title": "Station Health Scores over Time (0-100)",
+      "type": "timeseries",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2
+          },
+          "min": 0,
+          "max": 100,
+          "unit": "percent"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r._field == \"health_score\")\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> yield(name: \"health_score\")",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 7 },
+      "title": "Station Status Matrix",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "#EAB839", "value": 50 },
+              { "color": "green", "value": 80 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "orientation": "horizontal"
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r._field == \"health_score\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["bosch", "digital-twin", "line3"],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["1s", "5s", "10s", "30s", "1m"]
+  },
+  "timezone": "browser",
+  "title": "Line 3 Digital Twin - Operational Overview",
+  "uid": "line3-overview",
+  "version": 1
+}

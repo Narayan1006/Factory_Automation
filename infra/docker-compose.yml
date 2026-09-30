@@ -1,0 +1,66 @@
+services:
+  # ----------------------------------------------------------------------------
+  # 1. MQTT Broker (Eclipse Mosquitto)
+  # Standard industrial pub/sub broker for IoT telemetry & twin events
+  # ----------------------------------------------------------------------------
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: twin_mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+
+  # ----------------------------------------------------------------------------
+  # 2. Time-Series Storage (InfluxDB v2)
+  # High-throughput storage for station sensor metrics, health, and part risks
+  # ----------------------------------------------------------------------------
+  influxdb:
+    image: influxdb:2.7
+    container_name: twin_influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin_password_123
+      - DOCKER_INFLUXDB_INIT_ORG=bosch_twin
+      - DOCKER_INFLUXDB_INIT_BUCKET=factory_telemetry
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=bosch-digital-twin-super-secret-auth-token-12345
+      - DOCKER_INFLUXDB_INIT_RETENTION=30d
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+
+  # ----------------------------------------------------------------------------
+  # 3. Operational Dashboard (Grafana)
+  # Real-time visual digital twin monitoring, telemetry curves, and risk maps
+  # ----------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: twin_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin_password_123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/line_overview.json
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning
+      - ../grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - influxdb
+
+volumes:
+  mosquitto_data:
+  mosquitto_log:
+  influxdb_data:
+  influxdb_config:
+  grafana_data:

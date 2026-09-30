@@ -1,0 +1,8 @@
+order_sequence,line,station_id,topology_role,parts_processed,parts_coverage_pct,defects_logged,defect_rate_pct,selected_features_count,mean_interstation_wait_min
+1,L3,S29,Core Entry Station,1119629,94.58347096127805,6546,0.584657953661436,18,0.0
+2,L3,S30,Core Sequential Station,1119811,94.59884586824718,6551,0.5850094346278077,20,0.0
+3,L3,S33,Core Sequential Station,1114695,94.16665892289484,5546,0.4975352002117171,10,0.0
+4,L3,S34,Core Sequential Station,1115118,94.20239290997148,5718,0.5127708457759627,4,0.0
+5,L3,S35,Parallel Branch A (49.2% of parallel load),552108,46.640709543508876,3177,0.5754308939555305,0,0.0
+5,L3,S36,Parallel Branch B (50.8% of parallel load),569032,48.07040693661737,3391,0.5959243065416355,8,0.0
+6,L3,S37,Core Exit Sign-Off Station,1120394,94.64809625705493,6556,0.5851512949908693,4,0.0

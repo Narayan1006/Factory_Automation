@@ -1,0 +1,10 @@
+event_id,event_type,stations_involved,t_start,t_end,duration_hours,total_distinct_parts,observed_failures,expected_failures,excess_failures,oe_ratio,observed_defect_rate_pct,baseline_rate_pct,p_value,overlap_dedup_note
+EV-DEF-02,Defect Surge,S29,1607.38,1609.77,23.971699999998723,179,10,1.04,8.96,9.61,5.59,0.581,6.225722527623811e-19,Single station window
+EV-DEF-01,Defect Surge,"S33, S34",497.0,500.0,30.089999999999996,1146,48,6.66,41.34,7.21,4.19,0.581,2.1998738926681154e-58,Consecutive overlap: 47/48 failed parts (97.9%)
+EV-DEF-03,Defect Surge,S29,736.38,738.77,23.97169999999986,2610,84,15.17,68.83,5.54,3.22,0.581,1.3242631270089896e-70,Single station window
+EV-DEF-05,Defect Surge,S29,372.38,374.77,23.97169999999986,2505,62,14.56,47.44,4.26,2.48,0.581,5.376032036562665e-36,Single station window
+EV-DEF-04,Defect Surge,"S29, S37",371.46,378.64,72.01540000000007,3531,66,20.52,45.48,3.22,1.87,0.581,3.766220887365133e-24,Consecutive overlap: 66/66 failed parts (100.0%)
+EV-DRF-04,Measurement Drift,S31,24.33,40.0,157.17010000000002,35,N/A (Sensor Drift),N/A,N/A,7.65 sigma,Feature L3_S31_F3834,"mu=0, sigma=1",2.009793131305267e-14,Z-score = +7.65 sigma
+EV-DRF-02,Measurement Drift,S29,576.38,578.77,23.97169999999986,508,N/A (Sensor Drift),N/A,N/A,3.40 sigma,Feature L3_S29_F3339,"mu=0, sigma=1",0.000673858531353763,Z-score = -3.40 sigma
+EV-DRF-03,Measurement Drift,S29,0.38,2.77,23.9717,3779,N/A (Sensor Drift),N/A,N/A,2.64 sigma,Feature L3_S29_F3357,"mu=0, sigma=1",0.008290602722072082,Z-score = +2.64 sigma
+EV-DRF-01,Measurement Drift,S29,366.38,368.77,23.97169999999986,2366,N/A (Sensor Drift),N/A,N/A,2.52 sigma,Feature L3_S29_F3339,"mu=0, sigma=1",0.011735483430665132,Z-score = +2.52 sigma

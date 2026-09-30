@@ -1,0 +1,12 @@
+metric,value
+Total Parts Entering S29,"1,119,629"
+"S29 Active Duration (Hours, estimated)",17231.8
+"S29 Arrival Rate (parts/hour, estimated)",64.97
+"S29 Arrival Rate (parts/day, estimated)",1559.4
+Total Distinct S29 Batch Timestamps,"65,874"
+Mean S29 Batch Size (parts/timestamp),17.00
+Median S29 Batch Size (parts/timestamp),18
+P90 S29 Batch Size (parts/timestamp),23
+Max S29 Batch Size (parts/timestamp),46
+Mean Inter-Batch Gap at S29 (min),15.70
+Median Inter-Batch Gap at S29 (min),6.02

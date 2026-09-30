@@ -1,0 +1,296 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "AI Model Status & Causal Decision Context",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 1 },
+      "title": "Active Scenario & Hold-out Model",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "values": false, "calcs": ["lastNotNull"], "fields": "" },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: -30m)\n  |> filter(fn: (r) => r._measurement == \"ai_part_risk\" and r._field == \"decision_time\")\n  |> group(columns: [\"scenario_model\"])\n  |> last()\n  |> keep(columns: [\"scenario_model\"])",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 1 },
+      "title": "Parts Evaluated at Decision Point (S35/S36)",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"ai_part_risk\" and r._field == \"predicted_defect_prob\")\n  |> count()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 1 },
+      "title": "Leave-Scenario-Out Validation Guarantee",
+      "type": "text",
+      "options": {
+        "mode": "markdown",
+        "content": "### Zero Leakage & Strict Hold-out\n- **Decision Time:** Evaluated strictly at S35/S36 entry before reaching S37.\n- **Scenario Isolation:** Model trained without scenario window (+/- 3.0 margin units).\n- **Causal Defect Rate:** Historical feedback restricted to parts completed <= decision time."
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 200,
+      "title": "Part-Level Defect Risk Prediction (PyTorch MLP + Platt Calibration)",
+      "type": "row"
+    },
+    {
+      "id": 4,
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 6 },
+      "title": "Predicted Defect Probability vs Actual Historical Prevalence",
+      "type": "timeseries",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "pointSize": 5,
+            "showPoints": "auto",
+            "spanNulls": true
+          },
+          "unit": "percentunit"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Predicted Risk (P)" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } },
+              { "id": "custom.lineWidth", "value": 2 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Line Observed Defect Rate" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } },
+              { "id": "custom.lineStyle", "value": { "dash": [5, 5], "fill": "dash" } }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"ai_part_risk\" and r._field == \"predicted_defect_prob\")\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"Predicted Risk (P)\")",
+          "refId": "A"
+        },
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"line_overview\" and r._field == \"cumulative_defect_rate\")\n  |> map(fn: (r) => ({ r with _value: r._value / 100.0 }))\n  |> set(key: \"_field\", value: \"Line Observed Defect Rate\")",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 6 },
+      "title": "High-Risk Parts Distribution by Branch",
+      "type": "piechart",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "right" },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["count"], "fields": "" }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"ai_part_risk\" and r._field == \"predicted_defect_prob\" and r.is_high_risk == \"True\")\n  |> group(columns: [\"station_id\"])",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 300,
+      "title": "Line & Station Multivariate Anomaly Detection (LSTM Autoencoder)",
+      "type": "row"
+    },
+    {
+      "id": 6,
+      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 15 },
+      "title": "Reconstruction Anomaly Score vs Calibrated Threshold (p99)",
+      "type": "timeseries",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "showPoints": "never",
+            "spanNulls": true
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Reconstruction Error (MSE)" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "cyan", "mode": "fixed" } },
+              { "id": "custom.lineWidth", "value": 2 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Threshold (p99 Normal Windows)" },
+            "properties": [
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } },
+              { "id": "custom.lineStyle", "value": { "dash": [6, 4], "fill": "dash" } }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"ai_anomaly\" and r._field == \"anomaly_score\")\n  |> set(key: \"_field\", value: \"Reconstruction Error (MSE)\")",
+          "refId": "A"
+        },
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"ai_anomaly\" and r._field == \"threshold_p99\")\n  |> set(key: \"_field\", value: \"Threshold (p99 Normal Windows)\")",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "gridPos": { "h": 8, "w": 10, "x": 14, "y": 15 },
+      "title": "Per-Station Error Attribution (%)",
+      "type": "bargauge",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 25 },
+              { "color": "red", "value": 50 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "" }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"ai_anomaly\" and (r._field == \"attr_S29\" or r._field == \"attr_S30\" or r._field == \"attr_S33\" or r._field == \"attr_S34\" or r._field == \"attr_S35\" or r._field == \"attr_S36\" or r._field == \"attr_S37\"))\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "id": 400,
+      "title": "Windowed Pacing & Sensor Telemetry Aggregations",
+      "type": "row"
+    },
+    {
+      "id": 8,
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 24 },
+      "title": "Station Hourly Throughput",
+      "type": "timeseries",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "spanNulls": true },
+          "unit": "short"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"ai_window\" and r._field == \"throughput\")",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 24 },
+      "title": "Station Zero-Delta Pacing Share (%)",
+      "type": "timeseries",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "spanNulls": true },
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"ai_window\" and r._field == \"zero_delta_share\")",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["line3", "ai", "pytorch", "twin"],
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["1s", "5s", "10s", "30s", "1m"]
+  },
+  "timezone": "browser",
+  "title": "Line 3 AI Insights (PyTorch Defect & Anomaly Twin)",
+  "uid": "line3-ai-insights",
+  "version": 1
+}

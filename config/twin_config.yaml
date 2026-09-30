@@ -1,0 +1,299 @@
+# ==============================================================================
+# Bosch Production Line Digital Twin - Phase 1 Configuration
+# HCL In-House Internship Project: AI-Driven Digital Twin for Smart Factory Operations
+# ==============================================================================
+# NOTE FOR DEFENSE / PRESENTATION:
+# All parameters and weights here are explicit documented assumptions derived from
+# data exploration of the Bosch Production Line Performance dataset (Line 3 core flow).
+# No fabricated machines or ungrounded claims are included.
+# ==============================================================================
+
+twin:
+  name: "Bosch Line 3 Digital Twin"
+  version: "1.0.0"
+  description: "Real-time replay, ingestion, and health monitoring for Line 3 core flow"
+
+# ------------------------------------------------------------------------------
+# 1. TIME SCALE ASSUMPTION
+# Working assumption (not a proven fact):
+# Autocorrelation of arrival timestamps reveals peak at lag 16.75 units (r = 0.0895).
+# Assuming 16.75 units == 1 calendar week (168 hours):
+#   1.0 time unit    = 168 / 16.75 = 10.02985 hours (~10.03 h, ~601.8 min)
+#   0.01 time unit   = 6.0179 minutes (~6.02 min)
+# ------------------------------------------------------------------------------
+time:
+  units_per_week: 16.75
+  hours_per_week: 168.0
+  hours_per_unit: 10.029850746268656
+  minutes_per_unit: 601.7910447761194
+  discrete_step_units: 0.01
+  minutes_per_step: 6.017910447761194
+  # Real-time replay speed multiplier:
+  # 1.0 = 1 simulated hour takes 1 wall-clock hour
+  # 60.0 = 1 simulated hour takes 1 wall-clock minute
+  # 3600.0 = 1 simulated hour takes 1 wall-clock second
+  # 0.0 = maximum speed (burst mode, no sleeping)
+  default_replay_speed: 120.0
+
+# ------------------------------------------------------------------------------
+# 2. TOPOLOGY & SCOPE
+# Line 3 core flow: S29 -> S30 -> S33 -> S34 -> (S35 or S36) -> S37
+# Visits: 1,053,742 parts (89.02% of all factory parts, 89.06% of routed parts).
+# S35 and S36 are parallel branches with 49.24% / 50.76% split.
+# S31 is excluded (active only in first ~10 weeks; 3.19% detour).
+# 582 parts with all NaN timestamps are excluded.
+# ------------------------------------------------------------------------------
+topology:
+  line_id: 3
+  line_name: "Line 3"
+  stations:
+    - id: "S29"
+      station_num: 29
+      is_entry: true
+      is_exit: false
+      next_stations: ["S30"]
+      has_informative_features: true
+      feature_count: 17
+    - id: "S30"
+      station_num: 30
+      is_entry: false
+      is_exit: false
+      next_stations: ["S33"]
+      has_informative_features: true
+      feature_count: 10
+    - id: "S33"
+      station_num: 33
+      is_entry: false
+      is_exit: false
+      next_stations: ["S34"]
+      has_informative_features: true
+      feature_count: 6
+    - id: "S34"
+      station_num: 34
+      is_entry: false
+      is_exit: false
+      next_stations: ["S35", "S36"]
+      has_informative_features: false
+      feature_count: 0
+    - id: "S35"
+      station_num: 35
+      is_entry: false
+      is_exit: false
+      is_parallel_branch: true
+      next_stations: ["S37"]
+      has_informative_features: true
+      feature_count: 2
+    - id: "S36"
+      station_num: 36
+      is_entry: false
+      is_exit: false
+      is_parallel_branch: true
+      next_stations: ["S37"]
+      has_informative_features: true
+      feature_count: 4
+    - id: "S37"
+      station_num: 37
+      is_entry: false
+      is_exit: true
+      next_stations: []
+      has_informative_features: false
+      feature_count: 0
+
+# ------------------------------------------------------------------------------
+# 3. EMPIRICAL BASELINES (Derived from data_prep/output/)
+# ------------------------------------------------------------------------------
+baselines:
+  # Part-level failure outcome rate across Line 3 core sequence:
+  core_flow_defect_rate: 0.005069
+  # Arrival dynamics at S29:
+  s29_arrival_rate_per_hour: 64.97
+  s29_batch_size_mean: 17.0
+  s29_batch_size_median: 18.0
+  s29_batch_size_p90: 23.0
+  # Inter-station transit baselines (minutes) from line3_interstation_transit_times.csv
+  transit_pacing:
+    "S29->S30":
+      median_min: 0.0
+      p90_min: 6.0238
+      p99_min: 36.1060
+      zero_delta_pct: 55.24
+    "S30->S33":
+      median_min: 6.0238
+      p90_min: 24.0951
+      p99_min: 72.2120
+      zero_delta_pct: 3.76
+    "S33->S34":
+      median_min: 0.0
+      p90_min: 6.0238
+      p99_min: 30.0833
+      zero_delta_pct: 77.24
+    "S34->S35":
+      median_min: 0.0
+      p90_min: 6.0238
+      p99_min: 36.1060
+      zero_delta_pct: 71.97
+    "S34->S36":
+      median_min: 0.0
+      p90_min: 6.0238
+      p99_min: 30.0833
+      zero_delta_pct: 75.39
+    "S35->S37":
+      median_min: 0.0
+      p90_min: 6.0238
+      p99_min: 42.1278
+      zero_delta_pct: 72.93
+    "S36->S37":
+      median_min: 0.0
+      p90_min: 0.0
+      p99_min: 30.0833
+      zero_delta_pct: 85.87
+
+# ------------------------------------------------------------------------------
+# 4. HEALTH & RISK SCORING WEIGHTS & THRESHOLDS (Documented Assumptions)
+# Composite Station Health Score H_s in [0, 100]:
+# H_s = 100 - (w_drift * S_drift + w_pacing * S_pacing + w_defect * S_defect)
+# ------------------------------------------------------------------------------
+scoring:
+  station_health:
+    weights:
+      feature_drift: 0.45      # Weight for sensor feature |Z|-score anomalies
+      transit_pacing: 0.30     # Weight for transit delay beyond p90/p99
+      defect_rate: 0.25        # Weight for rolling failure rate exceeding baseline
+    thresholds:
+      healthy: 80.0            # H_s >= 80: Green
+      warning: 50.0            # 50 <= H_s < 80: Yellow
+      critical: 0.0            # H_s < 50: Red
+    z_score_threshold: 3.0     # |Z| > 3.0 considered feature anomaly
+    pacing_delay_factor: 1.5   # Transit > 1.5 * p90 incurs pacing penalty
+    rolling_window_parts: 100  # Parts in rolling window for local defect rate
+
+  part_risk:
+    feature_anomaly_weight: 0.50
+    station_health_penalty_weight: 0.30
+    transit_delay_weight: 0.20
+    thresholds:
+      low_risk: 0.30
+      high_risk: 0.70
+
+# ------------------------------------------------------------------------------
+# 5. REPLAY SCENARIOS (Real Line 3 Historical Windows)
+# ------------------------------------------------------------------------------
+scenarios:
+  A:
+    name: "Scenario A: S29 Sensor Drift & Co-occurring Defect Surge"
+    t_start: 362.0
+    t_end: 386.0
+    description: "S29 mean feature values drift concurrently with defect burst (t~372-378)."
+    focus_stations: ["S29", "S30", "S33"]
+  B:
+    name: "Scenario B: Production Gap & Restart Burst"
+    t_start: 492.0
+    t_end: 502.0
+    description: "~50-hour production stoppage (t=494-499, zero parts) followed by high defect surge at t=499."
+    focus_stations: ["S33", "S34", "S37"]
+  C:
+    name: "Scenario C: Large Defect Surge (Week 44)"
+    t_start: 730.0
+    t_end: 745.0
+    description: "High density line-wide failure surge across multiple batches."
+    focus_stations: ["S29", "S33", "S36", "S37"]
+  D:
+    name: "Scenario D: Week 51 Shutdown & Week 52 Thermal Restart"
+    t_start: 850.0
+    t_end: 890.0
+    description: "Factory output drops to near-zero (Week 51), restarting in Week 52 with elevated defects."
+    focus_stations: ["S29", "S30", "S35", "S36", "S37"]
+
+# ------------------------------------------------------------------------------
+# 6. INFRASTRUCTURE & NETWORK CONFIGURATION
+# ------------------------------------------------------------------------------
+mqtt:
+  broker_host: "localhost"
+  broker_port: 1883
+  client_id_prefix: "bosch_twin"
+  keepalive: 60
+  topics:
+    station_telemetry: "factory/line3/{station_id}/telemetry"
+    station_health: "factory/line3/{station_id}/health"
+    part_risk: "factory/line3/parts/{part_id}/risk"
+    line_overview: "factory/line3/overview"
+    alerts: "factory/line3/alerts"
+
+influxdb:
+  url: "http://localhost:8086"
+  org: "bosch_twin"
+  bucket: "factory_telemetry"
+  token: "bosch-digital-twin-super-secret-auth-token-12345"
+  batch_size: 50
+  flush_interval_ms: 1000
+
+grafana:
+  port: 3000
+  admin_user: "admin"
+  admin_password: "admin_password_123"
+
+# ------------------------------------------------------------------------------
+# 7. AI & MACHINE LEARNING (Phase 2)
+# Documented assumptions, splits, model hyperparameters, and thresholds
+# ------------------------------------------------------------------------------
+ai:
+  enabled: false          # Keep false by default until validated
+  random_seed: 42
+  
+  # Forward-chaining evaluation folds (weeks):
+  # 1 week = 16.75 relative time units
+  forward_chaining_folds:
+    - fold: 1
+      train_weeks: [0, 49]
+      val_weeks: [50, 64]
+    - fold: 2
+      train_weeks: [0, 64]
+      val_weeks: [65, 79]
+    - fold: 3
+      train_weeks: [0, 79]
+      val_weeks: [80, 102]
+      
+  # Leave-Scenario-Out margin (units)
+  scenario_margin_units: 3.0
+  
+  # Defect Risk MLP Model Hyperparameters
+  defect_model:
+    hidden_dims: [128, 64]
+    dropout: 0.2
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    batch_size: 4096
+    max_epochs: 25
+    patience: 5
+    pos_weight_multiplier: 1.0  # Class imbalance weighting
+    calibration: "isotonic"      # "isotonic" or "platt"
+    
+  # Anomaly Detection LSTM Autoencoder Hyperparameters
+  anomaly_model:
+    window_sim_hours: 1.0       # 1 sim-hour per window (~0.0997 time units)
+    seq_length: 24              # L=24 non-gap consecutive windows
+    min_parts_per_window: 20    # Windows with < 20 parts marked as gap
+    hidden_dim: 32
+    num_layers: 1
+    cell_type: "lstm"           # "lstm" or "gru"
+    learning_rate: 0.002
+    batch_size: 64
+    max_epochs: 30
+    patience: 6
+    threshold_percentile: 99.0  # p99 on normal validation windows
+    
+  # Real-time Scoring & Integration
+  integration:
+    risk:
+      use_ai: false             # If true, uses composite formula with AI
+      weights:
+        rule_risk: 0.30         # Q (Phase 1 part risk)
+        station_health: 0.20    # (1 - Hmin/100)
+        line_failure: 0.10      # F_line
+        predicted_p: 0.20       # P_norm = clip((mean_p/p0 - 1)/4, 0, 1)
+        anomaly_score: 0.20     # A_norm = clip(score/threshold - 1, 0, 1)
+    topics:
+      part_risk: "twin/ai/part_risk"
+      window: "twin/ai/window"
+      anomaly: "twin/ai/anomaly"
+

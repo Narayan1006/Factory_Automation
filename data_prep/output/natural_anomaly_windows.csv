@@ -1,0 +1,9 @@
+rank,anomaly_type,station,line,feature,window_duration,t_start,t_end,parts_count,distinct_failed_parts,observed_value,baseline_value,p_value_raw,p_value_adj_bh,consecutive_station_dedup_note
+1,Defect Rate Surge,S29,L3,Response,1-Day Window (24h),1607.38,1609.77,179,10,5.59% (10/179),0.585% (9.6x surge),0.00e+00,0.00e+00,Independent failed parts
+2,Defect Rate Surge,S29,L3,Response,1-Day Window (24h),736.38,738.77,2610,84,3.22% (84/2610),0.585% (5.5x surge),0.00e+00,0.00e+00,Independent failed parts
+3,Defect Rate Surge,S37,L3,Response,3-Day Window (72h),371.46,378.64,3493,66,1.89% (66/3493),0.585% (3.2x surge),0.00e+00,0.00e+00,Independent failed parts
+4,Defect Rate Surge,S29,L3,Response,1-Day Window (24h),372.38,374.77,2505,62,2.48% (62/2505),0.585% (4.2x surge),0.00e+00,0.00e+00,Independent failed parts
+5,Measurement Drift,S30,L3,L3_S30_F3794,1-Day Window (24h),472.4,474.79,2580,N/A,mean=0.147 (Z=+2.53 sigma),"mu=0.000, sigma=0.058",0.00e+00,0.00e+00,Process drift on L3_S30_F3794 across 2580 parts
+6,Measurement Drift,S29,L3,L3_S29_F3357,1-Day Window (24h),0.38,2.77,3779,N/A,mean=0.257 (Z=+2.64 sigma),"mu=-0.000, sigma=0.098",0.00e+00,0.00e+00,Process drift on L3_S29_F3357 across 3779 parts
+7,Measurement Drift,S29,L3,L3_S29_F3357,1-Day Window (24h),12.38,14.77,2237,N/A,mean=0.275 (Z=+2.82 sigma),"mu=-0.000, sigma=0.098",0.00e+00,0.00e+00,Process drift on L3_S29_F3357 across 2237 parts
+8,Measurement Drift,S29,L3,L3_S29_F3357,1-Day Window (24h),28.38,30.77,852,N/A,mean=0.256 (Z=+2.63 sigma),"mu=-0.000, sigma=0.098",0.00e+00,0.00e+00,Process drift on L3_S29_F3357 across 852 parts

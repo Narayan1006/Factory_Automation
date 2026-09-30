@@ -1,0 +1,5 @@
+metric,value
+Total Parts Evaluated,"1,183,747"
+Total Defective Parts (Response=1),"6,879"
+Overall Failure Rate (%),0.5811%
+Parts per Defect (1 in N),1 in 172

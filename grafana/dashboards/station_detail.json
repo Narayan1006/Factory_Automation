@@ -1,0 +1,212 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Station Health & Sub-Score Diagnostics",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 1 },
+      "title": "Station Health Score",
+      "type": "gauge",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "#EAB839", "value": 50 },
+              { "color": "green", "value": 80 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"health_score\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 1 },
+      "title": "Feature Drift Sub-Score",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "#EAB839", "value": 50 },
+              { "color": "green", "value": 80 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"feature_drift_score\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 1 },
+      "title": "Transit Pacing Sub-Score",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "#EAB839", "value": 50 },
+              { "color": "green", "value": 80 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"transit_pacing_score\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 1 },
+      "title": "Visiting Parts Failure Rate",
+      "type": "stat",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "#EAB839", "value": 0.8 },
+              { "color": "red", "value": 1.5 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"observed_defect_rate\")\n  |> last()",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "id": 101,
+      "title": "Sensor Signals & Pacing Curves",
+      "type": "row"
+    },
+    {
+      "id": 5,
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "title": "Sensor Feature Telemetry Traces",
+      "type": "timeseries",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 1.5
+          }
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_telemetry\" and r.station_id == \"${station}\" and r._field =~ /^L3_/)\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> yield(name: \"features\")",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "title": "Inter-Station Transit Pacing (Minutes)",
+      "type": "timeseries",
+      "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "points",
+            "pointSize": 5
+          },
+          "unit": "m"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_telemetry\" and r.station_id == \"${station}\" and r._field == \"transit_minutes\")\n  |> yield(name: \"transit\")",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["bosch", "digital-twin", "station"],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "S29",
+          "value": "S29"
+        },
+        "hide": 0,
+        "name": "station",
+        "options": [
+          { "selected": true, "text": "S29", "value": "S29" },
+          { "selected": false, "text": "S30", "value": "S30" },
+          { "selected": false, "text": "S33", "value": "S33" },
+          { "selected": false, "text": "S34", "value": "S34" },
+          { "selected": false, "text": "S35", "value": "S35" },
+          { "selected": false, "text": "S36", "value": "S36" },
+          { "selected": false, "text": "S37", "value": "S37" }
+        ],
+        "query": "S29,S30,S33,S34,S35,S36,S37",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "Line 3 Digital Twin - Station Detail",
+  "uid": "line3-station-detail",
+  "version": 1
+}
