@@ -6,20 +6,6 @@
 
 ---
 
-## 🚀 1-Click Quickstart (For Beginners & Reviewers)
-
-No complex Docker commands or terminal knowledge required to see the project running!
-
-1. **Option 1 (Easiest):** Double-click [`START_HERE.bat`](START_HERE.bat) in the project folder.  
-   *It automatically launches the app and opens the interactive dashboard in your browser!*
-2. **Option 2 (Terminal):**
-   ```powershell
-   streamlit run app.py
-   ```
-3. **Open in Browser:** Visit [`http://localhost:8501`](http://localhost:8501) for the interactive 1-click tour, conveyor animation, and AI sandbox.
-
----
-
 ## 1. System Architecture
 
 ```
