@@ -222,7 +222,6 @@ st.markdown("""
     </div>
     <div style="text-align: right;">
         <span class="console-tag" style="background:#0F1D17; border-color:#143D2F; color:#34D399;">● ENGINE ACTIVE</span>
-        <span class="console-tag">RTX 3050 / PYTORCH</span>
         <span class="console-tag">1.05M PARTS</span>
     </div>
 </div>
@@ -566,7 +565,7 @@ elif menu == "🧪 AI Inference Lab":
             <div style="margin-top:1.5rem; text-align:left; font-size:0.8rem; color:#94A3B8; font-family:'JetBrains Mono',monospace; border-top:1px solid #1E2738; padding-top:1rem;">
                 • Evaluation Node: Station S34 (AI Fork)<br>
                 • Model: 3-Layer Calibrated MLP (85 Inputs)<br>
-                • Execution Latency: 11.4 ms (CUDA/CPU)<br>
+                • Execution Latency: 11.4 ms (Real-time)<br>
                 • Action: {'Route to Finishing Branch' if prob < 0.5 else 'Engage S34 Divert Arm (Save 52 min)'}
             </div>
         </div>
