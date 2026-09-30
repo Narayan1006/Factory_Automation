@@ -52,13 +52,22 @@
       "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
       "fieldConfig": {
         "defaults": {
+          "displayName": "Parts Evaluated",
+          "noValue": "0",
           "color": { "mode": "palette-classic" },
           "unit": "short"
         }
       },
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
       "targets": [
         {
-          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"ai_part_risk\" and r._field == \"predicted_defect_prob\")\n  |> count()",
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"ai_part_risk\" and r._field == \"predicted_defect_prob\")\n  |> group()\n  |> count()",
           "refId": "A"
         }
       ]

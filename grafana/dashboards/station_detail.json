@@ -39,7 +39,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"health_score\")\n  |> last()",
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"health_score\")\n  |> group()\n  |> last()",
           "refId": "A"
         }
       ]
@@ -65,7 +65,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"feature_drift_score\")\n  |> last()",
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"feature_drift_score\")\n  |> group()\n  |> last()",
           "refId": "A"
         }
       ]
@@ -91,7 +91,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"transit_pacing_score\")\n  |> last()",
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"transit_pacing_score\")\n  |> group()\n  |> last()",
           "refId": "A"
         }
       ]
@@ -117,7 +117,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"observed_defect_rate\")\n  |> last()",
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r.station_id == \"${station}\" and r._field == \"observed_defect_rate\")\n  |> group()\n  |> last()",
           "refId": "A"
         }
       ]

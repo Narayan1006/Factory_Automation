@@ -146,12 +146,13 @@
           },
           "min": 0,
           "max": 100,
-          "unit": "percent"
+          "unit": "percent",
+          "displayName": "${__field.labels.station_id}"
         }
       },
       "targets": [
         {
-          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r._field == \"health_score\")\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> yield(name: \"health_score\")",
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r._field == \"health_score\")\n  |> group(columns: [\"station_id\"])\n  |> aggregateWindow(every: 10s, fn: mean, createEmpty: false)\n  |> yield(name: \"health_score\")",
           "refId": "A"
         }
       ]
@@ -164,6 +165,7 @@
       "datasource": { "type": "influxdb", "uid": "InfluxDB_Line3" },
       "fieldConfig": {
         "defaults": {
+          "displayName": "${__field.labels.station_id}",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -176,16 +178,22 @@
         }
       },
       "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "reduceOptions": {
-          "calcs": ["lastNotNull"],
+          "calcs": [
+            "lastNotNull"
+          ],
           "fields": "",
-          "values": true
+          "values": false
         },
-        "orientation": "horizontal"
+        "textMode": "value_and_name"
       },
       "targets": [
         {
-          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r._field == \"health_score\")\n  |> last()",
+          "query": "from(bucket: \"factory_telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"station_health\" and r._field == \"health_score\")\n  |> group(columns: [\"station_id\"])\n  |> sort(columns: [\"_time\"])\n  |> last()",
           "refId": "A"
         }
       ]
