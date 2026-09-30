@@ -1,0 +1,7 @@
+# Phase 2 PyTorch AI dependencies (MLP defect model, LSTM autoencoder, calibration)
+-r phase1_platform.txt
+scikit-learn>=1.4.0
+scipy>=1.12.0
+matplotlib>=3.8.0
+seaborn>=0.13.0
+torch>=2.2.0

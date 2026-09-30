@@ -1,0 +1,7 @@
+# Base dependencies for data handling and messaging
+pyyaml>=6.0
+numpy>=1.26.0
+pandas>=2.2.0
+pyarrow>=15.0.0
+paho-mqtt>=2.0.0
+python-dateutil>=2.8.0

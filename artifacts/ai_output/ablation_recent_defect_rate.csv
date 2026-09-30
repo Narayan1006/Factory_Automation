@@ -1,0 +1,4 @@
+pr_auc,roc_auc,mcc,optimal_threshold,recall_at_1pct,recall_at_5pct,lift_at_1pct,brier_score,model,fold
+0.10102,0.44168,0.00027,0.15512,0.0053,0.03393,0.53,0.103088,MLP Without recent_defect_rate,1
+0.08079,0.5502,0.06298,0.3761,0.01874,0.1007,1.87,0.059369,MLP Without recent_defect_rate,2
+0.09301,0.5537,0.04951,0.09606,0.0081,0.06748,0.81,0.076165,MLP Without recent_defect_rate,3

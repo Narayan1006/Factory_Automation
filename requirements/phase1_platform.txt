@@ -1,0 +1,3 @@
+# Phase 1 Platform dependencies (InfluxDB time-series ingestion & streaming)
+-r base.txt
+influxdb-client>=1.40.0

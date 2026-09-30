@@ -1,0 +1,30 @@
+# ==============================================================================
+# Central Project Filesystem Paths
+# AI-Driven Digital Twin for Smart Factory Operations
+# ==============================================================================
+# All paths can be resolved relative to repository root or overridden via env vars.
+
+paths:
+  # Raw historical data (NEVER committed, safety-first)
+  raw_data_dir: "data"
+  raw_train_numeric: "data/train_numeric.csv"
+  raw_train_date: "data/train_date.csv"
+
+  # Configs
+  configs_dir: "configs"
+  twin_config: "configs/twin_config.yaml"
+  scenarios_config: "configs/scenarios.yaml"
+
+  # Generated artifacts (models, replay data, cached parquet)
+  artifacts_dir: "artifacts"
+  models_dir: "artifacts/models"
+  model_registry: "artifacts/models/registry.json"
+  replay_data_dir: "artifacts/replay_data"
+  ai_data_dir: "artifacts/ai_data"
+  ai_output_dir: "artifacts/ai_output"
+  logs_dir: "artifacts/logs"
+
+  # Exploration outputs & reports
+  exploration_output_dir: "exploration/output"
+  exploration_scripts_dir: "exploration/scripts"
+  docs_dir: "docs"

@@ -1,0 +1,10 @@
+{
+  "part_rows": 50000,
+  "positives": 5507,
+  "defect_rate_pct": 11.014,
+  "window_rows": 17242,
+  "gap_windows": 17217,
+  "valid_windows": 25,
+  "timestamp": "2026-09-30 16:10:31",
+  "quick_mode": true
+}

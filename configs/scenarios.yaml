@@ -1,0 +1,36 @@
+# ==============================================================================
+# Replay Scenarios Configuration
+# Historical Windows from Line 3 of Bosch Production Line Dataset
+# ==============================================================================
+scenarios:
+  A:
+    name: "Scenario A: S29 Sensor Drift & Co-occurring Defect Surge"
+    t_start: 362.0
+    t_end: 386.0
+    description: "S29 mean feature values drift concurrently with defect burst (t~372-378)."
+    focus_stations: ["S29", "S30", "S33"]
+    expected_anomalies: ["S29 feature drift", "defect rate surge"]
+
+  B:
+    name: "Scenario B: Production Gap & Restart Burst"
+    t_start: 492.0
+    t_end: 502.0
+    description: "~50-hour production stoppage (t=494-499, zero parts) followed by high defect surge at t=499."
+    focus_stations: ["S33", "S34", "S37"]
+    expected_anomalies: ["line starvation/gap", "post-restart defect burst"]
+
+  C:
+    name: "Scenario C: Large Defect Surge (Week 44)"
+    t_start: 730.0
+    t_end: 745.0
+    description: "High density line-wide failure surge across multiple batches."
+    focus_stations: ["S29", "S33", "S36", "S37"]
+    expected_anomalies: ["line-wide defect burst", "pacing variance"]
+
+  D:
+    name: "Scenario D: Week 51 Shutdown & Week 52 Thermal Restart"
+    t_start: 850.0
+    t_end: 890.0
+    description: "Factory output drops to near-zero (Week 51), restarting in Week 52 with elevated defects."
+    focus_stations: ["S29", "S30", "S35", "S36", "S37"]
+    expected_anomalies: ["plant-wide holiday shutdown", "cold restart defect spike"]
