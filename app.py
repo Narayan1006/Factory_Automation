@@ -123,11 +123,10 @@ st.sidebar.title("Digital Twin Cloud")
 menu = st.sidebar.radio(
     "Choose What You Want to Explore:",
     [
-        "🌟 Beginner Mode (Start Here!)",
+        "⚡ 1-Click Scenario Experiments",
         "🏭 Live Factory Floor (Line 3)",
         "🧪 Try-It-Yourself (AI Sandbox)",
         "📈 Scenario Analytics (A, B, C, D)",
-        "🎓 Explain Like I'm 5 & Viva Guide",
     ],
     index=0,
 )
@@ -144,10 +143,10 @@ st.sidebar.caption("Project: AI-Driven Digital Twin for Smart Factory Operations
 
 
 # ==============================================================================
-# TAB 1: BEGINNER MODE (START HERE!)
+# TAB 1: 1-CLICK SCENARIO EXPERIMENTS
 # ==============================================================================
-if menu == "🌟 Beginner Mode (Start Here!)":
-    st.markdown('<div class="main-title">🌟 Welcome! Start Your Factory Tour Here</div>', unsafe_allow_html=True)
+if menu == "⚡ 1-Click Scenario Experiments":
+    st.markdown('<div class="main-title">⚡ Interactive Factory Scenario Simulations</div>', unsafe_allow_html=True)
     
     # Friendly Welcome Banner
     st.markdown("""
@@ -351,20 +350,6 @@ if menu == "🌟 Beginner Mode (Start Here!)":
         </div>
         """, unsafe_allow_html=True)
 
-    st.write("")
-
-    # 3-Minute Presentation Cheat Sheet
-    with st.expander("🎤 3-Minute Presentation Script (What to Say to Your Teacher or Examiner)", expanded=False):
-        st.markdown("""
-        **Minute 1 (The Problem):**  
-        *"Respected examiner, modern factories produce millions of parts, but quality inspection often happens at the very end of the line. In the Bosch manufacturing plant, when a machine at Station S29 drifts out of calibration, parts travel for over 50 minutes through multiple expensive assembly steps before being discovered as defective at Station S37. That wastes huge amounts of energy, tooling, and labor."*
-
-        **Minute 2 (Our Solution):**  
-        *"To solve this, we built an AI-Driven Digital Twin for Bosch Line 3—the production backbone handling 89% of the plant's parts. Our system streams real sensor telemetry over MQTT, stores it in InfluxDB, and deploys a PyTorch Deep Neural Network right at Station S34. In just 11 milliseconds, our model evaluates 85 nonlinear features and predicts whether the part will fail with 7.26x higher precision than random checks."*
-
-        **Minute 3 (The Impact):**  
-        *"Because Station S34 sits 30 to 75 minutes ahead of the exit, the factory gains over 52 minutes of proactive lead time to divert bad parts and recalibrate machines before mass defects occur. We verified this on real factory historical scenarios without any artificial fabrication, meeting the full IEEE 830 software engineering standard."*
-        """)
 
 
 # ==============================================================================
@@ -608,44 +593,3 @@ elif menu == "📈 Scenario Analytics (A, B, C, D)":
                 st.dataframe(df_sc[["part_id", "station_id", "sim_time", "transit_minutes"]].head(8), use_container_width=True)
 
 
-# ==============================================================================
-# TAB 5: EXPLAIN LIKE I'M 5 & VIVA GUIDE
-# ==============================================================================
-elif menu == "🎓 Explain Like I'm 5 & Viva Guide":
-    st.markdown('<div class="main-title">🎓 Plain-English Explanations & Viva Defense Cheat Sheet</div>', unsafe_allow_html=True)
-    st.markdown("Everything you need to understand the project intuitively and answer any question from an examiner or reviewer.")
-
-    with st.expander("👶 1. Explain the Project Like I'm 5 Years Old", expanded=True):
-        st.markdown("""
-        - **Imagine a toy factory:** Robots assemble toy cars on a conveyor belt that passes through 7 different work tables (S29 to S37).
-        - **The old way:** A person sits at the very last table (S37) and checks if the car has broken wheels. If it's broken, all the painting and screws added at earlier tables were wasted!
-        - **Our Smart Digital Twin:** We put an **AI Brain at Table S34 (the middle)**. By looking at how the earlier tables felt (temperature, vibrations, delays), our AI predicts: *"Hey, this car is going to break!"* **45 minutes before it reaches the end!**
-        - **The result:** The factory can fix the problem early, stop wasting parts, and save money!
-        """)
-
-    with st.expander("❓ 2. Top 5 Questions You Might Be Asked in Your Viva / Defense"):
-        st.markdown("""
-        **Q1: Why did you focus on Line 3 instead of the whole factory?**  
-        *Answer:* Because Line 3 is the main production backbone—**89.02% of all parts (1,053,742 parts)** pass through this exact sequence. Focusing on Line 3 gives us a clean, high-volume flow without noisy detours.
-
-        **Q2: What is the benefit of the PyTorch AI model over standard rules?**  
-        *Answer:* Rules only check individual sensor thresholds one by one. The PyTorch neural network looks at **nonlinear relationships across 85 features at once** (sensor drift, machine delays, throughput, and defect history), providing **5.8x to 7.26x higher precision** than random inspection.
-
-        **Q3: How much early lead time does the AI give you?**  
-        *Answer:* Parts reach the S34 prediction fork on average **30 to 75 minutes** before they exit at S37. That is 30–75 minutes of actionable lead time!
-
-        **Q4: Did you invent machine names or failure causes?**  
-        *Answer:* **No.** Bosch anonymized all station names and sensors. We adhered strictly to academic honesty: we model stations strictly by their empirical IDs (S29–S37), empirical cycle times, and statistical sensor distributions.
-
-        **Q5: What are the technologies used?**  
-        *Answer:* **Python 3.12**, **PyTorch** (for the Neural Network), **Eclipse Mosquitto** (MQTT messaging broker), **InfluxDB v2** (time-series database), and **Grafana / Streamlit** (visual dashboards).
-        """)
-
-    with st.expander("📄 3. Where to Find Your Project Submission Documents"):
-        st.markdown("""
-        All project documentation is ready in your folder:
-        - **Official B.Tech 3rd-Year SRS Report (Word .docx):** `BTech_3rd_Year_SRS_Final.docx`
-        - **Full Technical Markdown SRS:** `docs/BTech_3rd_Year_SRS_Report.md`
-        - **15-Question Defense Sheet:** `docs/phase3_demo/DEFENSE_SHEET.md`
-        - **System Architecture Document:** `docs/architecture.md`
-        """)
