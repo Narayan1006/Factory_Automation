@@ -1,0 +1,140 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: "line3-operational-alerts"
+    folder: "Line 3 Alerts"
+    interval: 1m
+    rules:
+      - uid: alert-high-risk-parts
+        title: "High Risk Part Surge Detected"
+        condition: B
+        for: 1m
+        data:
+          - refId: A
+            datasourceUid: InfluxDB_Line3
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              query: |
+                from(bucket: "factory_telemetry")
+                  |> range(start: -5m)
+                  |> filter(fn: (r) => r["_measurement"] == "part_risk" and r["_field"] == "composite_risk")
+                  |> filter(fn: (r) => r["_value"] >= 0.70)
+                  |> count()
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [5]
+        annotations:
+          summary: "Defect risk surge: multiple parts exceeding high-risk threshold (0.70) within 5 minutes"
+          runbook_url: "docs/phase1_platform/ALERTING.md#alert-1-high-risk-part-surge"
+        labels:
+          severity: critical
+          component: quality
+
+      - uid: alert-station-idle-warning
+        title: "Station Prolonged Idle / Starvation"
+        condition: B
+        for: 2m
+        data:
+          - refId: A
+            datasourceUid: InfluxDB_Line3
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              query: |
+                from(bucket: "factory_telemetry")
+                  |> range(start: -5m)
+                  |> filter(fn: (r) => r["_measurement"] == "station_telemetry")
+                  |> count()
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
+        annotations:
+          summary: "No telemetry received across Line 3 stations for over 2 minutes (line starvation or stoppage)"
+          runbook_url: "docs/phase1_platform/ALERTING.md#alert-2-station-idle-warning"
+        labels:
+          severity: warning
+          component: throughput
+
+      - uid: alert-ai-lstm-anomaly
+        title: "LSTM Autoencoder Anomaly Flagged"
+        condition: B
+        for: 1m
+        data:
+          - refId: A
+            datasourceUid: InfluxDB_Line3
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              query: |
+                from(bucket: "factory_telemetry")
+                  |> range(start: -5m)
+                  |> filter(fn: (r) => r["_measurement"] == "ai_sequence_anomaly" and r["_field"] == "is_anomaly")
+                  |> max()
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: gt
+                    params: [0]
+        annotations:
+          summary: "Unsupervised LSTM Autoencoder reconstruction loss exceeded p99 baseline threshold"
+          runbook_url: "docs/phase1_platform/ALERTING.md#alert-3-ai-lstm-anomaly"
+        labels:
+          severity: critical
+          component: ai-anomaly
+
+      - uid: alert-replay-stalled
+        title: "Telemetry Ingestion Pipeline Stalled"
+        condition: B
+        for: 2m
+        data:
+          - refId: A
+            datasourceUid: InfluxDB_Line3
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              query: |
+                from(bucket: "factory_telemetry")
+                  |> range(start: -2m)
+                  |> filter(fn: (r) => r["_measurement"] == "station_health")
+                  |> count()
+          - refId: B
+            datasourceUid: "-100"
+            model:
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator:
+                    type: lt
+                    params: [1]
+        annotations:
+          summary: "Ingestion service or replay engine has stalled; no health points received in 2 minutes"
+          runbook_url: "docs/phase1_platform/ALERTING.md#alert-4-replay-pipeline-stalled"
+        labels:
+          severity: warning
+          component: platform
