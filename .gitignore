@@ -11,8 +11,7 @@ data/
 
 # Large parquet tables (over 10MB or regenerable)
 *.parquet
-!artifacts/replay_data/
-artifacts/replay_data/*.parquet
+!replay_data/*.parquet
 artifacts/ai_data/*.parquet
 exploration/output/*.parquet
 data_prep/output/*.parquet
