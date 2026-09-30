@@ -17,9 +17,13 @@ import logging
 from typing import Dict, List, Tuple, Any, Optional
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+try:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+except ImportError:
+    matplotlib = None
+    plt = None
 
 import torch
 import torch.nn as nn
